@@ -37,38 +37,181 @@
 			<!-- Any section element inside of this container is displayed as a slide -->
 			<div class="slides">
 				<section>
-					<h1>Reveal.js</h1>
-					<h3>HTML Presentations Made Easy</h3>
+          <img width="700" height="250" src="images/webrtc-logo.png"/>
 					<p>
-						<small>Created by <a href="http://hakim.se">Hakim El Hattab</a> / <a href="http://twitter.com/hakimel">@hakimel</a></small>
+						<small>by Francesc Gil</small>
 					</p>
 				</section>
 
 				<section>
-					<h2>Heads Up</h2>
-					<p>
-						reveal.js is a framework for easily creating beautiful presentations using HTML. You'll need a browser with
-						support for CSS 3D transforms to see it in its full glory.
-					</p>
-
-					<aside class="notes">
-						Oh hey, these are some notes. They'll be hidden in your presentation, but you can see them if you open the speaker notes window (hit 's' on your keyboard).
-					</aside>
+          <h2>Definición</h2>
+          <p>Web Real-Time Communication (WebRTC) es una colección de estandares, protocolos y APIs de JavaScript, la combinación de las cuales habilita la posibilidad de compartir <b><u>Audio, Video y Datos</u></b> entre navegadores (peers).
 				</section>
 
 
 				<section>
-					<h2>Stellar Links</h2>
+					<h2>Definición</h2>
+          <p> Toda esta complexidad esta abstraida en las siguientes APIs del navegador (Firefox o Chrome):
 					<ul>
-						<li><a href="http://slid.es">Try the online editor</a></li>
-						<li><a href="https://github.com/hakimel/reveal.js">Source code on GitHub</a></li>
-						<li><a href="http://twitter.com/hakimel">Follow me on Twitter</a></li>
+            <li><b><u>MediaStream:</u></b> Captura el audio y video <i>stream</i>.
+            <li><b><u>RTCPeerConnection:</u></b> Comunicación de Audio y Video.
+            <li><b><u>TRCDataChannel:</u></b> Comunicación de Datos.
 					</ul>
 				</section>
 
+        <section>
+          <h2>Mantenimiento y Desarrollo</h2>
+          <p> El equipo encargado de mantener y desarrollar WebRTC es:
+          <ul>
+            <li><b><u>Web Real-Time COmmunications (WEBRTC)</u></b>: W3C responsables de definir las APIs del navegador.
+            <li><b><u>Real-Time Communication in Web-browsers (RTCWEB)</u></b>: Responsables de definir los protocolos, seguridad, formato de datos (etc).
+          </ul>
+        </section>
+
+        <section>
+          <h2>Audio y Video</h2>
+          <p> El Audio i Video recogido por el <b>getUserMedia</b> se tiene que 'tratar' para poder ser enviado, WebRTC se encara de codificar al enviar y al recibir el Audio o Video.
+        </section>
+
+        <section data-markdown>
+          <script type="text/template">
+            ##Example of getUserMedia
+
+            ```
+
+            <video autoplay></video>
+            %script
+              var constraints = {
+                audio: true,
+                video: {
+                  mandatory: {
+                    width: {min: 320},
+                    height: {min: 180}
+                  },
+                  optional: [
+                    { width: {max: 1280}},
+                    { frameRate: 30 },
+                    { facingMode: "user"}
+                  ]
+                }
+              }
+              navigator.getUserMedia(constraints, gotStream, logError);
+              function gotStream(stream) {
+                var video = document.querySelector('video');
+                video.src = window.URL.createObjectURL(stream);
+              }
+            ```
+          </script>
+        </section>
+
+        <section>
+          <h2>Protocolos</h2>
+          <ul>
+            <li><b>ICE</b>: Interactive Connectivity Establishment (RFC 5245)
+              <ul>
+                <li><b>STUN</b>: Session Traversal Utilities for NAT (RFC 5389)
+                <li><b>TURN</b>: Traversal Using Relays around NAT (RFC 5766)
+              </ul>
+            </li>
+            <li><b>SDP</b>: Session Description Protocol (RFC 4566)
+            <li><b>DTLS</b>: Datagram Transport Layer Security (RFC 6347)
+            <li><b>SCTP</b>: Stream Control Transport Protocol (RFC 4960)
+            <li><b>SRTP</b>: Secure Real-Time Transport Protocol (RFC 3711)
+          </ul>
+        </section>
+
+        <section>
+          <h2>Protocolos</h2>
+          <img width="700" height="300" src="images/protocol_stack.png"/>
+          <ul>
+            <li> ICE, STUN and TURN: Necesarios para establecer y mantener la comunicación UDP Peer-Peer.
+            <li> DTLS: Asegura toda la información entre Peers
+            <li> SCTP y SRTP: Encargados de controlar el flujo, las congestiones, multiplexar 'streams' ...
+          </ul>
+        </section>
+
+        <section>
+          <h2>RTCPeerConnection API</h2>
+          <p> Todos los Protocolos que hemos explicado antes los incorpora WebRTC con la API de RTCPeerConnection que es la encargada de mantener el ciclo de vida de cada 'peer'
+        </section>
+
+        <section>
+          <h2>Iniciar una conexion Peer-to-Peer</h2>
+          <p> Esta parte no la define WebRTC, es de libre elección a la aplicación. La funcionalidad es la de saber e informar que las dos 'Peers' estan preparadas para recibir/enviar audio y video. Seria el hecho de 'Llamar', <b>Signaling and Session Negotiation</b>.
+          <p> Las posibilidades que recomiendan son:
+          <ul>
+            <li><b><u>SIP/Jingle/ISUP</u></b>: Signaling gateway
+            <li><b><u>Custom</u></b>: Signaling gateway
+            <li><b><u>Multi-Gateway</u></b>: Signaling Service
+          </ul>
+        </section>
+
+        <section>
+          <h2>Iniciar una conexion Peer-to-Peer</h2>
+          <img width="900" height="400" src="images/signaling_types.png"/>
+        </section>
+
+        <section data-markdown>
+          <script type="text/template">
+            ##SDP
+
+            Session Description Protocol describe los parametros de la conexion Peer-to-Peer (tipo de media, ancho de banda ...) un ejemplo seria:
+            
+            ```
+            (... snip ...)
+            m=audio 1 RTP/SAVPF 111 ...
+            a=extmap:1 urn:ietf:params:rtp-hdrext:ssrc-audio-level
+            a=candidate:1862263974 1 udp 2113937151 192.168.1.73 60834 typ host ...
+            a=mid:audio
+            a=rtpmap:111 opus/48000/2
+            a=fmtp:111 minptime=10
+            (... snip ...)
+            ```
+
+            WebRTC no trata directamente con SDP, JSEP (JavaScript Session Establishment Protocol) lo abstrae con RTCPeerConnection.
+          </script>
+        </section>
+
+        <section>
+          <h2>Interactive Connection Establishment (ICE)</h2>
+          <p> Responsable de:
+          <ul>
+            <li> Cada RTCPeerConnections contiene un "ICE agent"
+            <li> "ICE agent" es responsable de obtener la IP local, puertos (candidatos)
+            <li> "ICE agent" es responsable de checkear la conectividad entre Peers
+            <li> "ICE agent" es responsable de enviar 'keepalives' (si el Peer esta vivo)
+          </ul>
+        </section>
+
+        <section>
+          <h2>Interactive Connection Establishment (ICE)</h2>
+          <p> Una vez establecidas las SD locales o remotas el ICE agent empieza a:
+          <ul>
+            <li> Pide al sistema la IP
+            <li> Pide als STUN su IP publica con puertos.
+          </ul>
+        </section>
+
+        <section>
+          <h2>Interactive Connection Establishment (ICE)</h2>
+          <p> Una vez se tiene la SD local y remota el ICE agent empieza a intentar conectarse al otro Peer (tiene una lista de Candidatos) enviando mensages al otro Peer esperando un ACK de respuesta OK!.
+        </section>
+
+        <section>
+          <h2>Momento de ver el codigo</h2>
+          <ul>
+            <li> <a target="_blank" href="https://github.com/XescuGC/webrtc-rails/blob/master/vendor/assets/javascripts/adapter.js">adapter.js</a>
+            <li> <a target="_blank" href="https://github.com/XescuGC/webrtc-rails">WebRTCRails</a>
+          </ul>
+        </section>
+
+        <section>
+          <h1>Q&A</h1>
+        </section>
+
 				<section>
 					<h1>THE END</h1>
-					<h3>BY Hakim El Hattab / hakim.se</h3>
+					<h3>BY Francesc Gil</h3>
 				</section>
 
 			</div>
